@@ -2,7 +2,16 @@ import type { Metadata } from 'next'
 import type { SeoData } from '@/lib/data/queries'
 
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://www.viaridez.ae/";
+  (process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") || "https://www.viaridez.ae")
+
+function siteUrlPath(path: string): string {
+  try {
+    const parsed = new URL(path, SITE_URL)
+    return `${SITE_URL}${parsed.pathname}${parsed.search}${parsed.hash}`
+  } catch {
+    return absoluteUrl(path)
+  }
+}
 
 /** Returns an absolute URL for a site-relative path (used in JSON-LD, canonicals). */
 export function absoluteUrl(path = '/'): string {
@@ -57,7 +66,7 @@ export function buildMetadata({
 }: BuildMetaArgs): Metadata {
   const metaTitle = seo?.metaTitle || (title ? `${title} | ViaRidez` : DEFAULT_TITLE)
   const metaDescription = seo?.metaDescription || description || DEFAULT_DESCRIPTION
-  const canonical = seo?.canonicalUrl || `${SITE_URL}${path}`
+  const canonical = siteUrlPath(seo?.canonicalUrl || path)
   const ogImage = seo?.ogImage || image || DEFAULT_OG_IMAGE
   const ogTitle = seo?.ogTitle || metaTitle
   const ogDescription = seo?.ogDescription || metaDescription

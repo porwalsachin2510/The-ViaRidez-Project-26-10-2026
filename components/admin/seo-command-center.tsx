@@ -45,7 +45,7 @@ const TITLE_MIN = 30
 const TITLE_MAX = 60
 const DESC_MIN = 70
 const DESC_MAX = 160
-const DISPLAY_HOST = "www.viaridez.com"
+const DISPLAY_HOST = "www.viaridez.ae"
 
 type TabKey = "health" | "general" | "social" | "schema" | "verification" | "crawl"
 

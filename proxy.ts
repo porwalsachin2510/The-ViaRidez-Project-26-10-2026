@@ -16,6 +16,15 @@ const { auth } = NextAuth(authConfig)
  */
 export default auth(async (req) => {
   const { pathname } = req.nextUrl
+  const hostname = req.nextUrl.hostname.toLowerCase()
+
+  // Move the legacy .com host to the matching .ae URL with a permanent 301.
+  if (hostname === 'viaridez.com' || hostname === 'www.viaridez.com') {
+    const canonical = req.nextUrl.clone()
+    canonical.protocol = 'https:'
+    canonical.hostname = 'www.viaridez.ae'
+    return NextResponse.redirect(canonical, 301)
+  }
 
   // 1. CMS redirects — never intercept admin, api, or Next internals.
   if (

@@ -21,7 +21,8 @@ export function CountUp({ value, className }: { value: string; className?: strin
   const prefix = match?.[1] ?? ''
   const suffix = match?.[3] ?? ''
 
-  const [display, setDisplay] = useState(target === null ? value : `${prefix}0${suffix}`)
+  // Render the final value in SSR HTML; animate from zero only after hydration.
+  const [display, setDisplay] = useState(value)
 
   useEffect(() => {
     if (target === null) {

@@ -124,7 +124,7 @@ export default async function Image() {
             fontWeight: 500,
           }}
         >
-          <span>www.viaridez.com</span>
+          <span>www.viaridez.ae</span>
           <span style={{ color: TEAL, fontWeight: 700 }}>Move People Better</span>
         </div>
       </div>

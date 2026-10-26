@@ -82,7 +82,7 @@ export default async function UnsubscribePage({
 
       <div className="flex flex-wrap gap-4 pt-2 text-sm">
         <Link href="/" className="font-medium text-foreground underline underline-offset-4">
-          Back to viaridez.com
+          Back to viaridez.ae
         </Link>
         <Link href="/contact" className="font-medium text-muted-foreground underline underline-offset-4">
           Contact us
