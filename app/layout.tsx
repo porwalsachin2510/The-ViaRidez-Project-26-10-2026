@@ -102,40 +102,42 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} bg-background`}>
+      <head>
+        <Script
+          id="google-ads-tag"
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17823708574"
+          strategy="beforeInteractive"
+        />
+        <Script id="google-ads-init" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            window.gtag = window.gtag || gtag;
+  
+            var savedConsent = null;
+            try {
+              savedConsent = window.localStorage.getItem('vr-cookie-consent');
+            } catch {
+              // Keep the privacy-safe default when storage is unavailable.
+            }
+  
+            var consentGranted = savedConsent === 'granted';
+            window.gtag('consent', 'default', {
+              ad_storage: consentGranted ? 'granted' : 'denied',
+              ad_user_data: consentGranted ? 'granted' : 'denied',
+              ad_personalization: consentGranted ? 'granted' : 'denied',
+              analytics_storage: consentGranted ? 'granted' : 'denied',
+              wait_for_update: 500,
+            });
+            window.gtag('js', new Date());
+            window.gtag('config', 'AW-17823708574');
+          `}
+        </Script>
+      </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
-      <Script
-        id="google-ads-tag"
-        src="https://www.googletagmanager.com/gtag/js?id=AW-17823708574"
-        strategy="beforeInteractive"
-      />
-      <Script id="google-ads-init" strategy="beforeInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){window.dataLayer.push(arguments);}
-          window.gtag = window.gtag || gtag;
-
-          var savedConsent = null;
-          try {
-            savedConsent = window.localStorage.getItem('vr-cookie-consent');
-          } catch {
-            // Keep the privacy-safe default when storage is unavailable.
-          }
-
-          var consentGranted = savedConsent === 'granted';
-          window.gtag('consent', 'default', {
-            ad_storage: consentGranted ? 'granted' : 'denied',
-            ad_user_data: consentGranted ? 'granted' : 'denied',
-            ad_personalization: consentGranted ? 'granted' : 'denied',
-            analytics_storage: consentGranted ? 'granted' : 'denied',
-            wait_for_update: 500,
-          });
-          window.gtag('js', new Date());
-          window.gtag('config', 'AW-17823708574');
-        `}
-      </Script>
     </html>
   )
 }
