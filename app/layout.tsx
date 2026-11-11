@@ -120,7 +120,7 @@ export default function RootLayout({
           var savedConsent = null;
           try {
             savedConsent = window.localStorage.getItem('vr-cookie-consent');
-          } catch (error) {
+          } catch {
             // Keep the privacy-safe default when storage is unavailable.
           }
 
