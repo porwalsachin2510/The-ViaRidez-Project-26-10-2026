@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 /**
  * Consent-gated analytics for the public site.
  *
- * - Reads GA4 / GTM ids from CMS site settings (passed as props).
+ * - Reads GA4 / GTM ids from CMS settings and the Google Ads tag from the site layout.
  * - Uses Google Consent Mode v2: consent defaults to "denied" so no
  *   analytics/ads cookies are set until the visitor opts in (PDPL / GDPR).
  * - Renders a cookie consent banner until a choice is stored.
@@ -35,10 +35,12 @@ function persistConsent(state: 'granted' | 'denied') {
 export function AnalyticsConsent({
   gaId,
   gtmId,
+  adsId,
   cookiePolicyHref = '/legal/cookie-policy',
 }: {
   gaId?: string
   gtmId?: string
+  adsId?: string
   cookiePolicyHref?: string
 }) {
   const [consent, setConsent] = useState<ConsentState>(null)
@@ -63,45 +65,18 @@ export function AnalyticsConsent({
     }
   }, [])
 
-  const hasAnalytics = Boolean(gaId || gtmId)
+  const hasAnalytics = Boolean(gaId || gtmId || adsId)
   const showBanner = mounted && hasAnalytics && consent === null
 
   return (
     <>
-      {/* Consent Mode defaults — must load before GA/GTM. */}
-      {hasAnalytics && (
-        <Script id="consent-default" strategy="beforeInteractive">
+      {/* GA4 shares the global gtag.js loader from app/layout.tsx. */}
+      {gaId && (
+        <Script id="ga4-init" strategy="afterInteractive">
           {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            window.gtag = window.gtag || gtag;
-            var stored = (function(){try{return localStorage.getItem('${CONSENT_KEY}')}catch(e){return null}})();
-            gtag('consent', 'default', {
-              ad_storage: stored === 'granted' ? 'granted' : 'denied',
-              ad_user_data: stored === 'granted' ? 'granted' : 'denied',
-              ad_personalization: stored === 'granted' ? 'granted' : 'denied',
-              analytics_storage: stored === 'granted' ? 'granted' : 'denied',
-              wait_for_update: 500
-            });
+            gtag('config', '${gaId}', { anonymize_ip: true });
           `}
         </Script>
-      )}
-
-      {/* GA4 */}
-      {gaId && (
-        <>
-          <Script
-            id="ga4-src"
-            strategy="afterInteractive"
-            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              gtag('js', new Date());
-              gtag('config', '${gaId}', { anonymize_ip: true });
-            `}
-          </Script>
-        </>
       )}
 
       {/* GTM */}

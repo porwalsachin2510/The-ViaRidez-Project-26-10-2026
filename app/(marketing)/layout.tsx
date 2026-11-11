@@ -70,6 +70,7 @@ export default async function MarketingLayout({ children }: { children: ReactNod
       <AnalyticsConsent
         gaId={settings.analytics?.gaId}
         gtmId={settings.analytics?.gtmId}
+        adsId="AW-17823708574"
       />
     </>
   )
