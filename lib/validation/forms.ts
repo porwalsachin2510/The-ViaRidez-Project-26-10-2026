@@ -157,4 +157,6 @@ export type FormState = {
   ok: boolean
   message?: string
   errors?: Record<string, string>
+  /** True only when a genuine contact enquiry has been persisted successfully. */
+  trackContactConversion?: boolean
 }

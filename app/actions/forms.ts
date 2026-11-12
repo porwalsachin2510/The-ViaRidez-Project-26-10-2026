@@ -189,7 +189,13 @@ export async function submitContact(_prev: FormState, formData: FormData): Promi
       }),
     })
 
-    return { ok: true, message: "Thanks — we've emailed you a confirmation and our team will be in touch within one business day." }
+    // Only this persisted, successful contact enquiry should count as a Google Ads conversion.
+    // The honeypot path above intentionally does not set this flag.
+    return {
+      ok: true,
+      trackContactConversion: true,
+      message: "Thanks — we've emailed you a confirmation and our team will be in touch within one business day.",
+    }
   } catch (err) {
     console.log("[v0] submitContact error:", err instanceof Error ? err.message : err)
     return { ok: false, message: "Something went wrong. Please try again or email us directly." }

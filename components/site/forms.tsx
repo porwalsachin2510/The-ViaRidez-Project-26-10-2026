@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useEffect, useRef } from "react"
 import { useFormStatus } from "react-dom"
 import { CheckCircle2, Loader2, AlertCircle } from "lucide-react"
 import {
@@ -60,6 +60,18 @@ function ErrorBanner({ message }: { message?: string }) {
 /* -------------------------------- Contact -------------------------------- */
 export function ContactForm() {
   const [state, action] = useActionState(submitContact, initial)
+  const conversionSent = useRef(false)
+
+  useEffect(() => {
+    if (!state.trackContactConversion || conversionSent.current) return
+    if (typeof window.gtag !== "function") return
+
+    conversionSent.current = true
+    window.gtag("event", "conversion", {
+      send_to: "AW-17823708574/TcAWCPb76LYdEJ7rgLNC",
+    })
+  }, [state.trackContactConversion])
+
   if (state.ok) return <SuccessCard message={state.message} />
   return (
     <form action={action} className="relative flex flex-col gap-5">
