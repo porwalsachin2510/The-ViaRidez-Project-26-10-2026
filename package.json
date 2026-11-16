@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "seed": "tsx scripts/seed.ts",
-    "seed:pages": "tsx scripts/seed-page-content.ts"
+    "seed:pages": "tsx scripts/seed-page-content.ts",
+    "seed:case-studies": "tsx scripts/seed-case-studies.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
