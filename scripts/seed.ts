@@ -45,7 +45,10 @@ async function seed() {
 
   // Admin user
   const adminEmail = 'admin@viaridez.ae'
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'ViaRidez@2026'
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD
+  if (!adminPassword) {
+    throw new Error('Set SEED_ADMIN_PASSWORD before running the full seed script.')
+  }
   const passwordHash = await bcrypt.hash(adminPassword, 12)
   const admin = await User.findOneAndUpdate(
     { email: adminEmail },
@@ -279,46 +282,68 @@ async function seed() {
   await Career.insertMany(CAREERS.map((c) => ({ ...c, ...by })))
   console.log(`Careers: ${await Career.countDocuments()}`)
 
-  // Clients (logos on the case-studies client wall)
-  await Client.deleteMany({})
-  await Client.insertMany(CLIENTS.map((c, i) => ({ ...c, order: i, featured: i < 4, ...by })))
-  console.log(`Clients: ${await Client.countDocuments()}`)
+  // Clients (logos on the case-studies client wall).
+  // Upsert so CMS-managed logo / website values and extra client records survive.
+  for (const [index, client] of CLIENTS.entries()) {
+    await Client.updateOne(
+      { name: client.name },
+      {
+        $set: {
+          ...client,
+          order: index,
+          featured: index < 4,
+          isDeleted: false,
+          ...by,
+        },
+      },
+      { upsert: true, runValidators: true },
+    )
+  }
+  console.log(`Clients synced: ${await Client.countDocuments({ isDeleted: false })}`)
 
-  // Case studies
-  await CaseStudy.deleteMany({})
-  await CaseStudy.insertMany(
-    CASE_STUDIES.map((cs) => ({
-      title: cs.title,
-      slug: cs.slug,
-      client: cs.client,
-      industry: cs.industry,
-      serviceType: cs.serviceType,
-      location: cs.location,
-      fleetSize: cs.fleetSize,
-      duration: cs.duration,
-      excerpt: cs.excerpt,
-      coverImage: cs.coverImage,
-      challenge: cs.challenge,
-      solution: cs.solution,
-      result: cs.result,
-      services: cs.services,
-      highlights: cs.highlights,
-      metrics: cs.metrics,
-      gallery: cs.gallery,
-      tags: cs.tags,
-      testimonialQuote: cs.testimonialQuote,
-      testimonialAuthor: cs.testimonialAuthor,
-      testimonialRole: cs.testimonialRole,
-      featured: Boolean(cs.featured),
-      order: cs.order ?? 0,
-      seo: { metaTitle: cs.metaTitle, metaDescription: cs.metaDescription },
-      ...by,
-    })),
-  )
-  console.log(`Case studies: ${await CaseStudy.countDocuments()}`)
+  // Case studies: update the seeded slugs without removing additional CMS records.
+  for (const [index, cs] of CASE_STUDIES.entries()) {
+    await CaseStudy.updateOne(
+      { slug: cs.slug },
+      {
+        $set: {
+          title: cs.title,
+          slug: cs.slug,
+          client: cs.client,
+          industry: cs.industry,
+          serviceType: cs.serviceType,
+          location: cs.location,
+          fleetSize: cs.fleetSize,
+          duration: cs.duration,
+          excerpt: cs.excerpt,
+          coverImage: cs.coverImage,
+          challenge: cs.challenge,
+          solution: cs.solution,
+          result: cs.result,
+          services: cs.services,
+          highlights: cs.highlights,
+          metrics: cs.metrics,
+          gallery: cs.gallery,
+          tags: cs.tags,
+          testimonialQuote: cs.testimonialQuote,
+          testimonialAuthor: cs.testimonialAuthor,
+          testimonialRole: cs.testimonialRole,
+          featured: Boolean(cs.featured),
+          order: cs.order ?? index,
+          seo: { metaTitle: cs.metaTitle, metaDescription: cs.metaDescription },
+          isDeleted: false,
+          ...by,
+        },
+      },
+      { upsert: true, runValidators: true },
+    )
+  }
+  console.log(`Case studies synced: ${await CaseStudy.countDocuments({ isDeleted: false, status: 'published' })}`)
+
 
   // CMS page shells for every marketing route. Existing admin-authored content is preserved.
   const cmsPages = [
+    ['case-studies', 'Case Studies', 'Transport programmes that keep organisations moving', 'Real outcomes for enterprises, free-zone companies and event organisers who rely on ViaRidez to move their people safely and on time.'],
     ['about', 'About ViaRidez', 'Moving people with precision, care and accountability', 'VIARIDEZ is a corporate transportation partner built for organisations that cannot afford to compromise on safety, punctuality or professionalism.'],
     ['why-viaridez', 'Why ViaRidez', 'Reliability engineered into every trip', 'For your operations, corporate transport is critical infrastructure. We build, run and report on it that way — safe, compliant and accountable, every single day.'],
     ['partners', 'Fleet Partners', 'Put your fleet to work with ViaRidez', 'Join our vetted network of transport operators. Attach your buses, coaches, vans and cars to long-term corporate contracts and keep your vehicles earning.'],
