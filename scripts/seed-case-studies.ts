@@ -59,7 +59,7 @@ async function seedCaseStudies() {
     )
   }
 
-  // Upsert each full case-study record. Existing admin-created studies remain untouched.
+  // Upsert the project-defined studies by slug; unrelated CMS-created studies remain in place.
   for (const [index, study] of CASE_STUDIES.entries()) {
     await CaseStudy.updateOne(
       { slug: study.slug },
@@ -122,7 +122,7 @@ async function seedCaseStudies() {
 
   console.log(`Synced ${CASE_STUDIES.length} seeded case studies and ${CLIENTS.length} seeded clients.`)
   console.log(`Published totals: ${publishedCaseStudies} case studies, ${publishedClients} clients.`)
-  console.log("Existing admin-created records and client logo fields were preserved.")
+  console.log("Additional CMS-created studies and existing client logo / website values were preserved.")
 }
 
 seedCaseStudies()
