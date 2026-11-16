@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** Aggregate the strongest metric across all studies for the hero stats band. */
 function heroStats(count: number) {
   return [
-    { value: `${count}+`, label: "Programmes delivered" },
+    { value: String(count), label: "Published case studies" },
     { value: "99%", label: "Average on-time arrival" },
     { value: "24/7", label: "Live operations desk" },
     { value: "13+", label: "Years of heritage" },
@@ -45,7 +45,6 @@ export default async function CaseStudiesPage() {
   ])
 
   const featured = caseStudies.find((c) => c.featured) ?? caseStudies[0]
-  const rest = featured ? caseStudies.filter((c) => c._id !== featured._id) : caseStudies
   const stats = heroStats(caseStudies.length)
 
   return (
@@ -133,7 +132,7 @@ export default async function CaseStudiesPage() {
                 description="Filter by industry or service to find the programme closest to your operation."
               />
               <div className="mt-10">
-                <CaseStudiesExplorer studies={rest} />
+                <CaseStudiesExplorer studies={caseStudies} />
               </div>
             </Container>
           </section>
